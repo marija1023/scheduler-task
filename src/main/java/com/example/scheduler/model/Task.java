@@ -1,10 +1,20 @@
 package com.example.scheduler.model;
 
+import java.io.File;
+import java.io.IOException;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.validation.constraints.Size;
+
+import org.codehaus.groovy.tools.shell.Shell;
+import org.springframework.scheduling.annotation.Scheduled;
+
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import groovy.lang.Script;
 
 @Entity
 public class Task {
@@ -65,6 +75,13 @@ public class Task {
 	@Override
 	public String toString() {
 		return "{id: " + this.Id + ", name: " + this.Name + ", recurrency: " + this.Recurrency + ", code: " + this.Code + "}";
+	}
+	
+	@Scheduled(cron = "${this.Recurrency}")
+	public void executeGroovyShellCode() {
+		GroovyShell shell = new GroovyShell(new Binding());
+		Script script = shell.parse(this.Code);
+		script.run();
 	}
 
 }

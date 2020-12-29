@@ -31,8 +31,9 @@
                                     <td th:text="${task.name}"></td>
                                     <td th:text="${task.recurrency}"></td>
 									<td th:text="${task.code}"></td>
-                                    <td><a th:href="@{/edit/{id}(id=${task.id})}" class="btn btn-primary"><i class="fas fa-user-edit ml-2"></i></a></td>
-                                    <td><a th:href="@{/delete/{id}(id=${task.id})}" class="btn btn-primary"><i class="fas fa-user-times ml-2"></i></a></td>
+                                    
+                                    <td><a th:href="@{/edit/{id}(id=${task.id})}" th:method="put" class="btn btn-primary"><i class="fas fa-user-edit ml-2"></i></a></td>
+                                    <td><a th:href="@{/delete/{id}(id=${task.id})}" th:method="delete" class="btn btn-primary"><i class="fas fa-user-times ml-2"></i></a></td>
                                 </tr>
                             </tbody>
                         </table>

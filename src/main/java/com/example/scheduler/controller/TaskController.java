@@ -109,5 +109,15 @@ public class TaskController {
 		this.taskRepository.deleteById(id);
 		return "redirect:/index";
 	}
+	
+	@GetMapping(path = "/execute/{id}")
+	public String executeTask(@PathVariable Long id) {
+		System.out.println("usli smo");
+		Task t = this.taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found"));
+		t.executeGroovyShellCode();
+		System.out.println("kao izvrsilo se");
+		
+		return "redirect:/index";
+	}
 
 }
