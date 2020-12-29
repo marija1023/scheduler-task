@@ -63,6 +63,13 @@
 		    <version>${groovy.version}</version>
 		    <type>pom</type>
 		</dependency>	
+		
+		<dependency>
+		  <groupId>org.awaitility</groupId>
+		  <artifactId>awaitility</artifactId>
+		  <version>3.1.2</version>
+		  <scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

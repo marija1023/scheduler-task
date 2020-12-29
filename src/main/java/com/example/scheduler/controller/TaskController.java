@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +23,15 @@ import com.example.scheduler.exception.TaskNotFoundException;
 import com.example.scheduler.model.Task;
 import com.example.scheduler.repository.ITaskRepository;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import groovy.lang.Script;
+
 @RestController
+@Component
 public class TaskController {
+	
+    private ThreadPoolTaskScheduler TaskScheduler;
 	
 	@Autowired
 	private ITaskRepository taskRepository;
@@ -28,6 +39,9 @@ public class TaskController {
 	@Autowired
 	public TaskController(ITaskRepository taskRepository) {
 		this.taskRepository = taskRepository;
+		this.TaskScheduler = new ThreadPoolTaskScheduler(); 	
+		this.TaskScheduler.setPoolSize(5);
+		this.TaskScheduler.initialize();
 	}
 	
 //	@GetMapping(path = "/")
@@ -60,6 +74,13 @@ public class TaskController {
 	@PostMapping(path = "/new")
 	public String createTask(@RequestBody Task task) {
 		Map<String, Task> model = new HashMap<>();
+		CronTrigger trigger = new CronTrigger(task.getRecurrency());
+		this.TaskScheduler.schedule(() -> {
+			GroovyShell shell = new GroovyShell(new Binding());
+			Script script = shell.parse(task.getCode());
+			script.run();
+			}, trigger);
+		System.out.println(trigger);
 		model.put("task", this.taskRepository.save(task));
 		return "redirect:/index";
 	}
@@ -109,15 +130,4 @@ public class TaskController {
 		this.taskRepository.deleteById(id);
 		return "redirect:/index";
 	}
-	
-	@GetMapping(path = "/execute/{id}")
-	public String executeTask(@PathVariable Long id) {
-		System.out.println("usli smo");
-		Task t = this.taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found"));
-		t.executeGroovyShellCode();
-		System.out.println("kao izvrsilo se");
-		
-		return "redirect:/index";
-	}
-
 }

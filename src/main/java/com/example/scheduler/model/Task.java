@@ -2,6 +2,9 @@ package com.example.scheduler.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,15 +13,21 @@ import javax.persistence.Lob;
 import javax.validation.constraints.Size;
 
 import org.codehaus.groovy.tools.shell.Shell;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.stereotype.Component;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 
 @Entity
+@Component
 public class Task {
-	
+  
 	@Id
 	@GeneratedValue
 	private Long Id;
@@ -35,9 +44,11 @@ public class Task {
 	public Task() {	}
 	
 	public Task(String name, String rec, String code) {
+		System.out.println("konstruktor");
 		this.Name = name;
 		this.Recurrency = rec;
 		this.Code = code;
+		
 	}
 	
 	public Long getId() {
@@ -76,12 +87,4 @@ public class Task {
 	public String toString() {
 		return "{id: " + this.Id + ", name: " + this.Name + ", recurrency: " + this.Recurrency + ", code: " + this.Code + "}";
 	}
-	
-	@Scheduled(cron = "${this.Recurrency}")
-	public void executeGroovyShellCode() {
-		GroovyShell shell = new GroovyShell(new Binding());
-		Script script = shell.parse(this.Code);
-		script.run();
-	}
-
 }
